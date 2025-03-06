@@ -228,4 +228,39 @@ describe("QualityUpdate", () => {
             expect(items[1].quality).toBe(19);
         });
     });
+
+    describe("applyOtherStockStrategy", () => {
+        it("should log 'Not implemented'", () => {
+            const consoleSpy = jest.spyOn(console, 'log');
+            QualityUpdate.applyOtherStockStrategy([]);
+            expect(consoleSpy).toHaveBeenCalledWith('Not implemented');
+            consoleSpy.mockRestore();
+        });
+    });
+
+    describe("QualityUpdate", () => {
+        describe("Sulfuras after expiration", () => {
+            it("should log 'No change' for expired Sulfuras items", () => {
+                const items: Item[] = [
+                    { name: ItemType.SULFURAS, sellIn: 0, quality: 80 }
+                ];
+
+                // Mock console.log
+                const consoleSpy = jest.spyOn(console, 'log');
+
+                // Cet appel devrait déclencher le console.log dans le cas d'un Sulfuras expiré
+                QualityUpdate.applyGildedRoseStrategy(items);
+
+                // Vérifier que le console.log a été appelé avec 'No change'
+                expect(consoleSpy).toHaveBeenCalledWith('No change');
+
+                // Vérifier également que les propriétés de l'item n'ont pas changé
+                expect(items[0].sellIn).toBe(0);
+                expect(items[0].quality).toBe(80);
+
+                // Restaurer console.log
+                consoleSpy.mockRestore();
+            });
+        });
+    });
 });

@@ -36,6 +36,7 @@ export class QualityUpdate {
                         break;
 
                     case ItemType.SULFURAS:
+                        console.log('No change')
                         break;  // No change for Sulfuras
 
                     case ItemType.CONJURED:

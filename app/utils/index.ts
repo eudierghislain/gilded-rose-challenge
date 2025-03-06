@@ -1,9 +1,9 @@
-const DEFAULT_NUMBER_OF_DAYS: number = 2;
-const commandLineArgs: string[] = process.argv;
-const userProvidedArg: string | undefined = commandLineArgs.slice(2)[0];
-const userProvidedDays: number = Number(userProvidedArg);
-const isValidNumber: boolean = !isNaN(userProvidedDays);
-const isPositiveNumber: boolean = userProvidedDays >= 0;
+export const DEFAULT_NUMBER_OF_DAYS: number = 2;
+export const commandLineArgs: string[] = process.argv;
+export const userProvidedArg: string | undefined = commandLineArgs.slice(2)[0];
+export const userProvidedDays: number = Number(userProvidedArg);
+export const isValidNumber: boolean = !isNaN(userProvidedDays);
+export const isPositiveNumber: boolean = userProvidedDays >= 0;
 
 const quitInventoryReport = (): void => process.exit(1);
 export const isNotLastDay = (index: number, nbDays: number[]): boolean => index < nbDays.length - 1;
