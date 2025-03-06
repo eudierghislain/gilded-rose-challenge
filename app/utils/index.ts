@@ -29,7 +29,7 @@ export const getUserInput = (): number[] => {
     return Array.from({ length: numberOfDays + 1 }, (_, index: number): number => index);
 };
 
-export const showDayIndication = (currentDay: number, requestedDays: number[]): void => {
+export const showDayIndication = (currentDay: number, requestedDays: number[]): string => {
     const lastDay: number = requestedDays.length - 1;
     const baseDayIndicator: string = `Day ${currentDay}`;
     const dayIndicator: string = currentDay === 0
@@ -39,4 +39,5 @@ export const showDayIndication = (currentDay: number, requestedDays: number[]): 
             : baseDayIndicator;
 
     console.log(`-------- ${dayIndicator} --------`);
+    return `-------- ${dayIndicator} --------`;
 }

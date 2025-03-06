@@ -1,7 +1,7 @@
 import { GildedRoseStore } from "./gilded-rose";
 import { Item } from "../interfaces/item.interface";
 import { QualityUpdate } from "../core/quality-update-strategy";
-import { InventoryManagerUtil } from "../core/inventory-manager-utils";
+import { showDayIndication } from "../utils";
 
 jest.mock("@/core/quality-update-strategy", () => ({
     QualityUpdate: {
@@ -22,9 +22,17 @@ describe("GildedRoseStore", () => {
     beforeEach(() => {
         store = new GildedRoseStore();
         testItems = [
-            { name: "item1", sellIn: 10, quality: 20 },
-            { name: "item2", sellIn: 5, quality: 30 }
+            { name: "+5 Dexterity Vest", sellIn: 10, quality: 20 },
+            { name: "Aged Brie", sellIn: 2, quality: 0 },
+            { name: "Elixir of the Mongoose", sellIn: 5, quality: 7 },
+            { name: "Sulfuras, Hand of Ragnaros", sellIn: 0, quality: 80 },
+            { name: "Sulfuras, Hand of Ragnaros", sellIn: -1, quality: 80 },
+            { name: "Backstage passes to a TAFKAL80ETC concert", sellIn: 15, quality: 20 },
+            { name: "Backstage passes to a TAFKAL80ETC concert", sellIn: 10, quality: 49 },
+            { name: "Backstage passes to a TAFKAL80ETC concert", sellIn: 5, quality: 49 },
+            { name: "Conjured Mana Cake", sellIn: 3, quality: 6 }
         ];
+
         jest.clearAllMocks();
     });
 
@@ -49,23 +57,10 @@ describe("GildedRoseStore", () => {
             expect(store.getItems()).toEqual([]);
         });
 
-        it("should return all items after they are set", () => {
-            store.setItems(testItems);
-            const items = store.getItems();
-
-            expect(items.length).toBe(2);
-            expect(items[0].name).toBe("item1");
-            expect(items[1].name).toBe("item2");
-        });
-
         it("should return a reference to the internal items array", () => {
             store.setItems(testItems);
             const items = store.getItems();
-
-            // Modify the returned array
             items[0].quality = 99;
-
-            // The internal state should be modified
             expect(store.getItems()[0].quality).toBe(99);
         });
     });
@@ -87,19 +82,39 @@ describe("GildedRoseStore", () => {
         });
     });
 
-    describe("getInventoryForDays", () => {
-        it("should call InventoryManagerUtil.getInventoryForDays with store and requested days", () => {
-            const requestedDays = [1, 2, 3];
-            const mockReturnValue = [{ name: "test", sellIn: 5, quality: 10 }];
+    it("Approval should thirtyDays", () => {
+        jest.unmock("@/core/quality-update-strategy");
+        const { QualityUpdate } = jest.requireActual("@/core/quality-update-strategy");
 
-            (InventoryManagerUtil.getInventoryForDays as jest.Mock).mockReturnValue(mockReturnValue);
+        const generateDaysArray = (numberOfDays: number): number[] => {
+            return Array.from({ length: numberOfDays + 1 }, (_, i) => i);
+        };
 
-            store.setItems(testItems);
-            const result = store.getInventoryForDays(requestedDays);
+        const isNotLastDay = (currentIndex: number, daysArray: number[]): boolean => {
+            return currentIndex < daysArray.length - 1;
+        };
 
-            expect(InventoryManagerUtil.getInventoryForDays).toHaveBeenCalledTimes(1);
-            expect(InventoryManagerUtil.getInventoryForDays).toHaveBeenCalledWith(store, requestedDays);
-            expect(result).toBe(mockReturnValue);
-        });
+        const requestedDays = generateDaysArray(30);
+        const items: Item[] = JSON.parse(JSON.stringify(testItems));
+        let output = "OMGHAI!\n";
+
+
+
+        for (let currentDay = 0; currentDay < requestedDays.length; currentDay++) {
+            const day = requestedDays[currentDay];
+
+            output += `${showDayIndication(day, requestedDays)}\n`;
+            output += "name, sellIn, quality\n";
+            items.forEach(item => {
+                output += `${item.name}, ${item.sellIn}, ${item.quality}\n`;
+            });
+            output += "\n";
+
+            if (isNotLastDay(currentDay, requestedDays)) {
+                QualityUpdate.applyGildedRoseStrategy(items);
+            }
+        }
+
+        expect(output).toMatchSnapshot();
     });
 });
